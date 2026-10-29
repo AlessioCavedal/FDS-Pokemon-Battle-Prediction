@@ -12,7 +12,7 @@ PARA = {"thunderwave", "stunspore", "glare"}
 PHAZE = {"roar", "whirlwind"}
 SELF_KO = {"explosion", "selfdestruct"}
 SCREENS = {"reflect", "lightscreen"}
-WEATHER = {"raindance", "sunnyday", "sandstorm"}
+WEATHER = ("raindance", "sunnyday", "sandstorm")
 FIXED_DAMAGE = {"seismictoss", "nightshade"}
 PARTIAL_TRAP = {"clamp", "wrap", "bind", "firespin", "whirlpool"}
 
