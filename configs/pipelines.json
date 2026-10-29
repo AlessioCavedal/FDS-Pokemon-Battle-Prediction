@@ -1,0 +1,1690 @@
+{
+  "lr_base": {
+    "model": "lr",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events"
+    ],
+    "params": {
+      "C": 0.05
+    }
+  },
+  "lgbm_stack": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01
+  },
+  "lr_all_v2": {
+    "model": "lr",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "params": {
+      "C": 0.003
+    }
+  },
+  "lgbm_stack_v2": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01
+  },
+  "lgbm_stackfull_v2": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003
+  },
+  "lrs_mk_v4ref": {
+    "model": "lr_spline",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "params": {
+      "C": 0.0007,
+      "keys": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ]
+    }
+  },
+  "lgbm_t": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 1983,
+      "learning_rate": 0.007727193102198855,
+      "num_leaves": 11,
+      "max_depth": 4,
+      "min_child_samples": 36,
+      "subsample": 0.6718983628488647,
+      "colsample_bytree": 0.1485019423624065,
+      "reg_lambda": 0.05263731198434919,
+      "reg_alpha": 0.002365401239346883,
+      "min_split_gain": 0.37391511416763296,
+      "subsample_freq": 1
+    }
+  },
+  "xgb_t": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2693,
+      "learning_rate": 0.0037910193463538897,
+      "max_depth": 4,
+      "min_child_weight": 6.511874735945298,
+      "subsample": 0.48880918202601475,
+      "colsample_bytree": 0.46825758684380014,
+      "reg_lambda": 0.5836942350390798,
+      "reg_alpha": 0.7139495569462497,
+      "gamma": 0.8407945124918521
+    }
+  },
+  "cat_t": {
+    "model": "cat",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "iterations": 2431,
+      "learning_rate": 0.01283494221669511,
+      "depth": 5,
+      "l2_leaf_reg": 3.268911923145891,
+      "random_strength": 1.4630369674877794,
+      "bagging_temperature": 0.6296719937794388,
+      "rsm": 0.3463257500869084
+    }
+  },
+  "lgbm_t2": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 1923,
+      "learning_rate": 0.008081605764973849,
+      "num_leaves": 9,
+      "max_depth": 4,
+      "min_child_samples": 76,
+      "subsample": 0.9092954187203037,
+      "colsample_bytree": 0.21440317409883963,
+      "reg_lambda": 0.009142949784245947,
+      "reg_alpha": 0.010952625812536086,
+      "min_split_gain": 0.0796977105167146,
+      "subsample_freq": 1
+    }
+  },
+  "xgb_t2": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2294,
+      "learning_rate": 0.007913887246783498,
+      "max_depth": 3,
+      "min_child_weight": 1.9697526022874337,
+      "subsample": 0.49697118197877566,
+      "colsample_bytree": 0.3877025327355442,
+      "reg_lambda": 0.18317956984810999,
+      "reg_alpha": 0.3574349749071232,
+      "gamma": 1.1158538846021717
+    }
+  },
+  "cat_t2": {
+    "model": "cat",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "iterations": 1864,
+      "learning_rate": 0.008791421986322925,
+      "depth": 5,
+      "l2_leaf_reg": 2.243363884509331,
+      "random_strength": 1.2646265073360432,
+      "bagging_temperature": 0.9150434040437386,
+      "rsm": 0.5083841922710512
+    }
+  },
+  "lgbm_stack_v3": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "bag_time",
+      "bag_count"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "bag_time",
+      "bag_count"
+    ],
+    "stack_C": 0.01
+  },
+  "lgbm_stack_v3_sep": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "bag_time",
+      "bag_count"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "bag_time",
+      "bag_count"
+    ],
+    "stack_C": 0.01,
+    "stack_separate": true
+  },
+  "lrs_full": {
+    "model": "lr_spline",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_full",
+      "bag_hp_full",
+      "bag_moves",
+      "hidden"
+    ],
+    "params": {
+      "C": 0.0007,
+      "keys": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ]
+    }
+  },
+  "lgbm_ts": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.0007,
+    "params": {
+      "n_estimators": 1983,
+      "learning_rate": 0.007727193102198855,
+      "num_leaves": 11,
+      "max_depth": 4,
+      "min_child_samples": 36,
+      "subsample": 0.6718983628488647,
+      "colsample_bytree": 0.1485019423624065,
+      "reg_lambda": 0.05263731198434919,
+      "reg_alpha": 0.002365401239346883,
+      "min_split_gain": 0.37391511416763296,
+      "subsample_freq": 1
+    },
+    "stack_full_spline": [
+      "f_d_fainted",
+      "f_d_hp_sum",
+      "f_p1_fainted",
+      "f_p2_fainted",
+      "f_p1_hp_sum",
+      "f_p2_hp_sum",
+      "f_d_strength",
+      "t_hd_mean",
+      "t_fd_mean",
+      "a_ttk_adv",
+      "m_win_mean",
+      "f_d_alive",
+      "a_a1_hp",
+      "a_a2_hp",
+      "f_d_hp_hard",
+      "f_d_fainted_hard",
+      "f_p2_unrevealed",
+      "m_p1_cover",
+      "m_p2_cover",
+      "a_dmg12",
+      "a_dmg21",
+      "a_speed_logratio",
+      "t_hd_delta10",
+      "f_d_disabled",
+      "e_d_dealt"
+    ]
+  },
+  "lgbm_t_aug": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "cut"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 1983,
+      "learning_rate": 0.007727193102198855,
+      "num_leaves": 11,
+      "max_depth": 4,
+      "min_child_samples": 36,
+      "subsample": 0.6718983628488647,
+      "colsample_bytree": 0.1485019423624065,
+      "reg_lambda": 0.05263731198434919,
+      "reg_alpha": 0.002365401239346883,
+      "min_split_gain": 0.37391511416763296,
+      "subsample_freq": 1
+    },
+    "aug": {
+      "cuts": [
+        20,
+        25
+      ],
+      "w30": 2.0
+    }
+  },
+  "xgb_t_aug": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "cut"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2693,
+      "learning_rate": 0.0037910193463538897,
+      "max_depth": 4,
+      "min_child_weight": 6.511874735945298,
+      "subsample": 0.48880918202601475,
+      "colsample_bytree": 0.46825758684380014,
+      "reg_lambda": 0.5836942350390798,
+      "reg_alpha": 0.7139495569462497,
+      "gamma": 0.8407945124918521
+    },
+    "aug": {
+      "cuts": [
+        20,
+        25
+      ],
+      "w30": 2.0
+    }
+  },
+  "cat_t_aug": {
+    "model": "cat",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "cut"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "iterations": 2431,
+      "learning_rate": 0.01283494221669511,
+      "depth": 5,
+      "l2_leaf_reg": 3.268911923145891,
+      "random_strength": 1.4630369674877794,
+      "bagging_temperature": 0.6296719937794388,
+      "rsm": 0.3463257500869084
+    },
+    "aug": {
+      "cuts": [
+        20,
+        25
+      ],
+      "w30": 2.0
+    }
+  },
+  "lrs_aug": {
+    "model": "lr_spline",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "cut"
+    ],
+    "params": {
+      "C": 0.0007
+    },
+    "aug": {
+      "cuts": [
+        20,
+        25
+      ],
+      "w30": 2.0
+    }
+  },
+  "lgbm_t2_mono": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 1923,
+      "learning_rate": 0.008081605764973849,
+      "num_leaves": 9,
+      "max_depth": 4,
+      "min_child_samples": 76,
+      "subsample": 0.9092954187203037,
+      "colsample_bytree": 0.21440317409883963,
+      "reg_lambda": 0.009142949784245947,
+      "reg_alpha": 0.010952625812536086,
+      "min_split_gain": 0.0796977105167146,
+      "subsample_freq": 1
+    },
+    "monotone": true
+  },
+  "xgb_t2_mono": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2294,
+      "learning_rate": 0.007913887246783498,
+      "max_depth": 3,
+      "min_child_weight": 1.9697526022874337,
+      "subsample": 0.49697118197877566,
+      "colsample_bytree": 0.3877025327355442,
+      "reg_lambda": 0.18317956984810999,
+      "reg_alpha": 0.3574349749071232,
+      "gamma": 1.1158538846021717
+    },
+    "monotone": true
+  },
+  "lgbm_t2_bag": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 1923,
+      "learning_rate": 0.008081605764973849,
+      "num_leaves": 9,
+      "max_depth": 4,
+      "min_child_samples": 76,
+      "subsample": 0.9092954187203037,
+      "colsample_bytree": 0.21440317409883963,
+      "reg_lambda": 0.009142949784245947,
+      "reg_alpha": 0.010952625812536086,
+      "min_split_gain": 0.0796977105167146,
+      "subsample_freq": 1
+    },
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "xgb_t2_bag": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2294,
+      "learning_rate": 0.007913887246783498,
+      "max_depth": 3,
+      "min_child_weight": 1.9697526022874337,
+      "subsample": 0.49697118197877566,
+      "colsample_bytree": 0.3877025327355442,
+      "reg_lambda": 0.18317956984810999,
+      "reg_alpha": 0.3574349749071232,
+      "gamma": 1.1158538846021717
+    },
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "cat_t2_bag": {
+    "model": "cat",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "iterations": 1864,
+      "learning_rate": 0.008791421986322925,
+      "depth": 5,
+      "l2_leaf_reg": 2.243363884509331,
+      "random_strength": 1.2646265073360432,
+      "bagging_temperature": 0.9150434040437386,
+      "rsm": 0.5083841922710512
+    },
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "lrs_tm": {
+    "model": "lr_spline",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "params": {
+      "C": 0.0007,
+      "keys": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ]
+    },
+    "team": {
+      "a": 5.0,
+      "p2": true,
+      "base_C": 0.0007,
+      "base_spline": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ]
+    }
+  },
+  "xgb_t2_tm": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2294,
+      "learning_rate": 0.007913887246783498,
+      "max_depth": 3,
+      "min_child_weight": 1.9697526022874337,
+      "subsample": 0.49697118197877566,
+      "colsample_bytree": 0.3877025327355442,
+      "reg_lambda": 0.18317956984810999,
+      "reg_alpha": 0.3574349749071232,
+      "gamma": 1.1158538846021717
+    },
+    "team": {
+      "a": 5.0,
+      "p2": true
+    }
+  },
+  "lrs_tm_nop2": {
+    "model": "lr_spline",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "params": {
+      "C": 0.0007,
+      "keys": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ]
+    },
+    "team": {
+      "a": 5.0,
+      "p2": false,
+      "base_C": 0.0007,
+      "base_spline": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ]
+    }
+  },
+  "xgb_team_split": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2294,
+      "learning_rate": 0.007913887246783498,
+      "max_depth": 3,
+      "min_child_weight": 1.9697526022874337,
+      "subsample": 0.49697118197877566,
+      "colsample_bytree": 0.3877025327355442,
+      "reg_lambda": 0.18317956984810999,
+      "reg_alpha": 0.3574349749071232,
+      "gamma": 1.1158538846021717
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true,
+      "split": true
+    }
+  },
+  "xgb_team_retuned": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2152,
+      "learning_rate": 0.007222605133164841,
+      "max_depth": 3,
+      "min_child_weight": 0.8820940325657065,
+      "subsample": 0.4549544285116899,
+      "colsample_bytree": 0.41153887069519834,
+      "reg_lambda": 0.004193348740824075,
+      "reg_alpha": 0.5708764050596437,
+      "gamma": 0.701786823356847
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true
+    }
+  },
+  "lgbm_team_retuned": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 1562,
+      "learning_rate": 0.009129306071446837,
+      "num_leaves": 11,
+      "max_depth": 4,
+      "min_child_samples": 67,
+      "subsample": 0.8375910447264548,
+      "colsample_bytree": 0.14046349849290293,
+      "reg_lambda": 0.017268968871884022,
+      "reg_alpha": 0.010079855222153291,
+      "min_split_gain": 0.10045108745003795,
+      "subsample_freq": 1
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true
+    }
+  },
+  "xgb_h2h_bt03": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2294,
+      "learning_rate": 0.007913887246783498,
+      "max_depth": 3,
+      "min_child_weight": 1.9697526022874337,
+      "subsample": 0.49697118197877566,
+      "colsample_bytree": 0.3877025327355442,
+      "reg_lambda": 0.18317956984810999,
+      "reg_alpha": 0.3574349749071232,
+      "gamma": 1.1158538846021717
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true,
+      "pair": true,
+      "joint": true,
+      "lam": 0.3
+    }
+  },
+  "lr_spline_h2h_bt01": {
+    "model": "lr_spline",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "params": {
+      "C": 0.0007,
+      "keys": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ]
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "base_C": 0.0007,
+      "base_spline": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ],
+      "link": true,
+      "pair": true,
+      "joint": true,
+      "lam": 0.1
+    }
+  },
+  "lr_spline_team": {
+    "model": "lr_spline",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "params": {
+      "C": 0.0007,
+      "keys": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ]
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "base_C": 0.0007,
+      "base_spline": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ],
+      "link": true
+    }
+  },
+  "xgb_team": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2294,
+      "learning_rate": 0.007913887246783498,
+      "max_depth": 3,
+      "min_child_weight": 1.9697526022874337,
+      "subsample": 0.49697118197877566,
+      "colsample_bytree": 0.3877025327355442,
+      "reg_lambda": 0.18317956984810999,
+      "reg_alpha": 0.3574349749071232,
+      "gamma": 1.1158538846021717
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true
+    }
+  },
+  "lgbm_team": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 1923,
+      "learning_rate": 0.008081605764973849,
+      "num_leaves": 9,
+      "max_depth": 4,
+      "min_child_samples": 76,
+      "subsample": 0.9092954187203037,
+      "colsample_bytree": 0.21440317409883963,
+      "reg_lambda": 0.009142949784245947,
+      "reg_alpha": 0.010952625812536086,
+      "min_split_gain": 0.0796977105167146,
+      "subsample_freq": 1
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true
+    }
+  },
+  "cat_team": {
+    "model": "cat",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "iterations": 1864,
+      "learning_rate": 0.008791421986322925,
+      "depth": 5,
+      "l2_leaf_reg": 2.243363884509331,
+      "random_strength": 1.2646265073360432,
+      "bagging_temperature": 0.9150434040437386,
+      "rsm": 0.5083841922710512
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true
+    }
+  },
+  "lr_spline_h2h": {
+    "model": "lr_spline",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "params": {
+      "C": 0.0007,
+      "keys": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ]
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "base_C": 0.0007,
+      "base_spline": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ],
+      "link": true,
+      "pair": true
+    }
+  },
+  "xgb_h2h": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2294,
+      "learning_rate": 0.007913887246783498,
+      "max_depth": 3,
+      "min_child_weight": 1.9697526022874337,
+      "subsample": 0.49697118197877566,
+      "colsample_bytree": 0.3877025327355442,
+      "reg_lambda": 0.18317956984810999,
+      "reg_alpha": 0.3574349749071232,
+      "gamma": 1.1158538846021717
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true,
+      "pair": true
+    }
+  },
+  "lgbm_h2h": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 1923,
+      "learning_rate": 0.008081605764973849,
+      "num_leaves": 9,
+      "max_depth": 4,
+      "min_child_samples": 76,
+      "subsample": 0.9092954187203037,
+      "colsample_bytree": 0.21440317409883963,
+      "reg_lambda": 0.009142949784245947,
+      "reg_alpha": 0.010952625812536086,
+      "min_split_gain": 0.0796977105167146,
+      "subsample_freq": 1
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true,
+      "pair": true
+    }
+  },
+  "cat_h2h": {
+    "model": "cat",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "iterations": 2883,
+      "learning_rate": 0.006388766767796231,
+      "depth": 6,
+      "l2_leaf_reg": 1.0125444690360867,
+      "random_strength": 2.7787738509370583,
+      "bagging_temperature": 0.16902526989254424,
+      "rsm": 0.551655095551719
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true,
+      "pair": true
+    }
+  }
+}

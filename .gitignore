@@ -1,0 +1,8 @@
+fds-pokemon-battles-prediction-2026/
+.venv/
+cache/
+submissions/
+catboost_info/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
