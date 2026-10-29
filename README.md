@@ -21,10 +21,16 @@ Predicting the winner of Gen 2 OU Pokémon battles from Player 1's full team, Pl
    - a quick simulation of the rest of the battle as a sequence of one-on-one duels between the remaining
      Pokémon (Gen 2 damage with the revealed moves, alone or with the typical moves of each species learned
      from the training battles; the winner keeps its remaining HP and the loser sends in its best answer),
-     and the duel between the two actives;
+     and the duel between the two actives. A second version also counts the turns still lost asleep or
+     frozen (typical lengths measured on the training battles), always allows a STAB move, applies weather
+     and screens to the duel of the actives, and is also run against Player 2's unrevealed Pokémon guessed
+     from the team co-occurrences of the training battles;
    - action statistics (move classes, attack effectiveness, switches, damage dealt, healing) and switching
      behaviour: each player's chance to switch out in the current matchup and its switches beyond the
      expected ones, from voluntary-switch rates per pair of actives learned from the training battles;
+   - field and team condition: Spikes on each side, stat stages of the actives (the Speed drop of Curse not
+     counted), healthy and statused shares, Snorlax's HP (expected while unrevealed) and the physical and
+     special bulk left (HP x Defense, HP x Special Defense);
    - static team descriptors and Player 2's lead;
    - symmetric bags of species, alive HP and revealed moves.
 4. **Team effect.** Teams are reused across battles: there are 4,167 distinct Player 1 teams in the 10,000
@@ -70,6 +76,8 @@ from the training battles, and the test set is only used for prediction.
 | + battle simulation and switching behaviour | `xgb_sim` | 0.7146 | 0.5495 |
 | Same features with CatBoost | `cat_sim` | 0.7155 | 0.5497 |
 | Blend of `lr_spline_sim`, `xgb_sim`, `lgbm_sim`, `cat_sim` | `blend_sim` | 0.7156 (nested) | 0.5483 |
+| + simulation v2 and field/team condition, CatBoost | `cat_sim3` | 0.7165 | 0.5474 |
+| Blend of `lr_spline_sim3`, `xgb_sim3`, `lgbm_sim3`, `cat_sim3` | `blend_sim3` | 0.7162 (nested) | 0.5463 |
 
 ## Experiments
 
@@ -87,6 +95,7 @@ improve validation and are not used by the final pipelines:
 - monotone constraints and seed bagging;
 - re-tuning after the team effect;
 - separate Player 1 / Player 2 team terms;
+- critical hits and usage-based typical moves in the simulation;
 - a joint Bradley–Terry estimate of the team strengths.
 
 ## Layout
@@ -98,7 +107,8 @@ src/
   mechanics.py   Gen 2 stat and damage formulas
   replay.py      timeline parsing, move events, transitions
   faint.py       hidden-faint detector
-  features/      feature groups (state, active, events, matchup, simulation, switching, bags, team, ...)
+  features/      feature groups (state, active, events, matchup, simulation, switching, condition, bags,
+                 team, ...)
                  and the cached build
   models.py      model factory, stacked logits, team effect, spline logistic regression
   pipelines.py   named pipelines from configs/pipelines.json
@@ -115,11 +125,11 @@ experiments/     experiment log
 ```bash
 pip install -r requirements.txt
 python -m src.cli features                      # build and cache the features
-python -m src.cli cv xgb_sim                    # 5x3 cross-validation of a pipeline
+python -m src.cli cv cat_sim3                   # 5x3 cross-validation of a pipeline
 python -m src.tune xgb_team --trials 60         # hyper-parameter search
-python -m src.cli blend lr_spline_sim xgb_sim lgbm_sim cat_sim --save blend_sim
-python -m src.cli submit --blend blend_sim      # fit on all training battles, write submissions/blend_sim.csv
-python -m src.cli submit --pipeline cat_sim     # same for a single pipeline
+python -m src.cli blend lr_spline_sim3 xgb_sim3 lgbm_sim3 cat_sim3 --save blend_sim3
+python -m src.cli submit --blend blend_sim3     # fit on all training battles, write submissions/blend_sim3.csv
+python -m src.cli submit --pipeline cat_sim3    # same for a single pipeline
 ```
 
 - `blend` uses the out-of-fold predictions produced by `cv`; `submit` only needs the configurations.

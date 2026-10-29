@@ -12,23 +12,24 @@ from ..faint import fit_detector
 from ..replay import parse
 from .active import active_features
 from .bags import Vocab, bag_features
+from .condition import condition_features
 from .events import event_features
 from .extra import sleep_features, usage_bags
 from .hidden import TeamModel, hidden_features
 from .matchup import matchup_features, wincon_features
-from .simulation import MoveTable, duel_features
+from .simulation import MoveTable, duel_features, simulation_features
 from .state import p1_track, p2_track, state_features
 from .static import static_features
 from .switching import SwitchRates, behaviour_features
 from .team import team_keys
 
-VERSION = "v8"
+VERSION = "v9"
 GROUPS = {
     "static": ("s_",), "state": ("f_",), "traj": ("t_",), "active": ("a_",), "events": ("e_",),
     "matchup": ("m_",), "wincon": ("w_",), "sleep": ("x_",),
     "bag_species": ("bs_",), "bag_hp": ("bh_",), "bag_moves": ("bm_",), "bag_time": ("bt_",), "bag_count": ("bc_",),
     "bag_full": ("bf_",), "bag_hp_full": ("bg_",), "hidden": ("u_",), "team": ("k_",), "sim": ("d_",),
-    "behaviour": ("v_",), "cut": ("cut",),
+    "behaviour": ("v_",), "sim2": ("z_",), "context": ("c_",), "cut": ("cut",),
 }
 
 
@@ -48,6 +49,8 @@ def battle_features(b, vocab, team_model, moves, rates):
     f.update(team_keys(b))
     f.update(duel_features(b, t1, t2, moves))
     f.update(behaviour_features(b, rates))
+    f.update(simulation_features(b, t1, t2, moves, team_model))
+    f.update(condition_features(b, t1, t2, team_model))
     return f
 
 
