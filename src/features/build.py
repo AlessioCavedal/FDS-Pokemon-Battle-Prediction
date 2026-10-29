@@ -16,20 +16,23 @@ from .events import event_features
 from .extra import sleep_features, usage_bags
 from .hidden import TeamModel, hidden_features
 from .matchup import matchup_features, wincon_features
+from .simulation import MoveTable, duel_features
 from .state import p1_track, p2_track, state_features
 from .static import static_features
+from .switching import SwitchRates, behaviour_features
 from .team import team_keys
 
-VERSION = "v6"
+VERSION = "v8"
 GROUPS = {
     "static": ("s_",), "state": ("f_",), "traj": ("t_",), "active": ("a_",), "events": ("e_",),
     "matchup": ("m_",), "wincon": ("w_",), "sleep": ("x_",),
     "bag_species": ("bs_",), "bag_hp": ("bh_",), "bag_moves": ("bm_",), "bag_time": ("bt_",), "bag_count": ("bc_",),
-    "bag_full": ("bf_",), "bag_hp_full": ("bg_",), "hidden": ("u_",), "team": ("k_",), "cut": ("cut",),
+    "bag_full": ("bf_",), "bag_hp_full": ("bg_",), "hidden": ("u_",), "team": ("k_",), "sim": ("d_",),
+    "behaviour": ("v_",), "cut": ("cut",),
 }
 
 
-def battle_features(b, vocab, team_model):
+def battle_features(b, vocab, team_model, moves, rates):
     t1, t2 = p1_track(b), p2_track(b)
     f = {"battle_id": b.id}
     f.update(static_features(b))
@@ -43,6 +46,8 @@ def battle_features(b, vocab, team_model):
     f.update(usage_bags(b, vocab))
     f.update(hidden_features(b, team_model, vocab, t1, t2))
     f.update(team_keys(b))
+    f.update(duel_features(b, t1, t2, moves))
+    f.update(behaviour_features(b, rates))
     return f
 
 
@@ -52,9 +57,9 @@ def build():
     dex = pokedex()
     train, test = parse(train_raw, dex), parse(test_raw, dex)
     info = fit_detector(train, test)
-    vocab, team_model = Vocab(train), TeamModel(train)
-    X_train = pd.DataFrame([battle_features(b, vocab, team_model) for b in train]).set_index("battle_id")
-    X_test = pd.DataFrame([battle_features(b, vocab, team_model) for b in test]).set_index("battle_id")
+    helpers = Vocab(train), TeamModel(train), MoveTable(train), SwitchRates(train)
+    X_train = pd.DataFrame([battle_features(b, *helpers) for b in train]).set_index("battle_id")
+    X_test = pd.DataFrame([battle_features(b, *helpers) for b in test]).set_index("battle_id")
     X_train = X_train.astype(float)
     X_test = X_test[X_train.columns].astype(float)
     X_train["cut"] = X_test["cut"] = float(len(train_raw[0]["battle_timeline"]))
@@ -88,12 +93,13 @@ def build_truncated(cuts):
     train_raw = load_train()
     dex = pokedex()
     full = parse(train_raw, dex)
-    vocab, team_model = Vocab(full), TeamModel(full)
+    fit_detector(full, [])
+    helpers = Vocab(full), TeamModel(full), MoveTable(full), SwitchRates(full)
     frames = []
     for cut in cuts:
         battles = parse(train_raw, dex, cut=cut)
         fit_detector(battles, [])
-        X = pd.DataFrame([battle_features(b, vocab, team_model) for b in battles]).set_index("battle_id").astype(float)
+        X = pd.DataFrame([battle_features(b, *helpers) for b in battles]).set_index("battle_id").astype(float)
         X["cut"] = float(cut)
         frames.append(X)
     return pd.concat(frames)

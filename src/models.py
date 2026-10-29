@@ -4,6 +4,7 @@ regression and seed bagging."""
 from collections import defaultdict
 
 import numpy as np
+import pandas as pd
 from catboost import CatBoostClassifier
 from lightgbm import LGBMClassifier
 from scipy.optimize import minimize
@@ -287,7 +288,7 @@ class TeamEffect(BaseEstimator, TransformerMixin):
 
     def _attach(self, X, cols):
         drop = [c for c in X.columns if c.startswith("k_")] + ([self.base] if self.drop_base else [])
-        return X.drop(columns=drop).assign(**cols)
+        return pd.concat([X.drop(columns=drop), pd.DataFrame(cols, index=X.index)], axis=1)
 
 
 def stack_steps(blocks, C=0.05, seed=SEED, full_C=None, full_cols=None, full_spline_keys=None):

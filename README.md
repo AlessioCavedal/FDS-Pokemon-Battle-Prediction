@@ -18,7 +18,13 @@ Predicting the winner of Gen 2 OU Pokémon battles from Player 1's full team, Pl
    - the two active Pokémon: boosts, volatile effects, speed order, Gen 2 damage and turns-to-KO estimates;
    - a matchup matrix between the remaining Pokémon of both teams, and win conditions (hazards, spinners,
      setup, phazers, healers, sleepers);
-   - action statistics (move classes, attack effectiveness, switches, damage dealt, healing);
+   - a quick simulation of the rest of the battle as a sequence of one-on-one duels between the remaining
+     Pokémon (Gen 2 damage with the revealed moves, alone or with the typical moves of each species learned
+     from the training battles; the winner keeps its remaining HP and the loser sends in its best answer),
+     and the duel between the two actives;
+   - action statistics (move classes, attack effectiveness, switches, damage dealt, healing) and switching
+     behaviour: each player's chance to switch out in the current matchup and its switches beyond the
+     expected ones, from voluntary-switch rates per pair of actives learned from the training battles;
    - static team descriptors and Player 2's lead;
    - symmetric bags of species, alive HP and revealed moves.
 4. **Team effect.** Teams are reused across battles: there are 4,167 distinct Player 1 teams in the 10,000
@@ -61,7 +67,9 @@ from the training battles, and the test set is only used for prediction.
 | Tuned XGBoost with stacked logits | `xgb_t2` | 0.7081 | 0.5564 |
 | + team effect | `xgb_team` | 0.7113 | 0.5521 |
 | + head-to-head term | `xgb_h2h` | 0.7128 | 0.5518 |
-| Blend of `lr_spline_h2h`, `xgb_h2h`, `lgbm_h2h`, `cat_h2h` | `blend_h2h` | 0.7132 (nested) | 0.5504 |
+| + battle simulation and switching behaviour | `xgb_sim` | 0.7146 | 0.5495 |
+| Same features with CatBoost | `cat_sim` | 0.7155 | 0.5497 |
+| Blend of `lr_spline_sim`, `xgb_sim`, `lgbm_sim`, `cat_sim` | `blend_sim` | 0.7156 (nested) | 0.5483 |
 
 ## Experiments
 
@@ -90,7 +98,8 @@ src/
   mechanics.py   Gen 2 stat and damage formulas
   replay.py      timeline parsing, move events, transitions
   faint.py       hidden-faint detector
-  features/      feature groups (state, active, events, matchup, static, bags, team, ...) and the cached build
+  features/      feature groups (state, active, events, matchup, simulation, switching, bags, team, ...)
+                 and the cached build
   models.py      model factory, stacked logits, team effect, spline logistic regression
   pipelines.py   named pipelines from configs/pipelines.json
   cv.py          repeated cross-validation, out-of-fold predictions, experiment log
@@ -106,11 +115,11 @@ experiments/     experiment log
 ```bash
 pip install -r requirements.txt
 python -m src.cli features                      # build and cache the features
-python -m src.cli cv xgb_h2h                    # 5x3 cross-validation of a pipeline
+python -m src.cli cv xgb_sim                    # 5x3 cross-validation of a pipeline
 python -m src.tune xgb_team --trials 60         # hyper-parameter search
-python -m src.cli blend lr_spline_h2h xgb_h2h lgbm_h2h cat_h2h --save blend_h2h
-python -m src.cli submit --blend blend_h2h      # fit on all training battles, write submissions/blend_h2h.csv
-python -m src.cli submit --pipeline xgb_h2h     # same for a single pipeline
+python -m src.cli blend lr_spline_sim xgb_sim lgbm_sim cat_sim --save blend_sim
+python -m src.cli submit --blend blend_sim      # fit on all training battles, write submissions/blend_sim.csv
+python -m src.cli submit --pipeline cat_sim     # same for a single pipeline
 ```
 
 - `blend` uses the out-of-fold predictions produced by `cv`; `submit` only needs the configurations.
