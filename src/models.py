@@ -160,14 +160,18 @@ class TeamEffect(BaseEstimator, TransformerMixin):
     """Shrunk mean residual (w.r.t. the cross-fitted logit `base`) of the training battles played with the
     same team, a proxy for the player behind it. A battle counts for its P1 team and, with opposite sign,
     for its P2 team when known; with `link`, a P2 team with five revealed species is matched to the only
-    training team containing them. With `joint`, the strengths are instead fitted together (Bradley-Terry
-    style, see _joint). fit_transform is cross-fitted, transform uses all training rows."""
+    training team containing them. With `soft`, a P2 team with `soft_min` to five revealed species is matched
+    to all the training teams that contain them, weighted by how often each was played: such battles spread
+    their residual over these candidates and get their weighted effect (`tm_soft`, also added to `tm` when
+    the P2 team is not known otherwise). With `joint`, the strengths are instead fitted together
+    (Bradley-Terry style, see _joint). fit_transform is cross-fitted, transform uses all training rows."""
 
     def __init__(self, base="stack_logit_full", a=5.0, p2=True, link=False, pair=False, split=False, joint=False,
-                 lam=1.0, lam_pair=None, n_splits=5, seed=SEED, drop_base=False):
+                 lam=1.0, lam_pair=None, n_splits=5, seed=SEED, drop_base=False, soft=False, soft_min=3):
         self.base, self.a, self.p2, self.link, self.pair, self.split = base, a, p2, link, pair, split
         self.joint, self.lam, self.lam_pair = joint, lam, lam_pair
         self.n_splits, self.seed, self.drop_base = n_splits, seed, drop_base
+        self.soft, self.soft_min = soft, soft_min
 
     @staticmethod
     def _pair_key(a, b):
@@ -238,10 +242,68 @@ class TeamEffect(BaseEstimator, TransformerMixin):
                     c[a, b] += 1
                     s[b, a] -= ri
                     c[b, a] += 1
-        return s, c, links, theta
+        return s, c, links, theta, self._soft_fit(X, r) if self.soft else None
+
+    @staticmethod
+    def _species(X):
+        p1 = X[[f"k_p1sp{k}" for k in range(6)]].to_numpy()
+        p2 = X[[f"k_p2sp{k}" for k in range(6)]].to_numpy()
+        return [frozenset(row) for row in p1], [frozenset(v for v in row if not np.isnan(v)) for row in p2]
+
+    @staticmethod
+    def _candidates(index, revealed, own):
+        cands = None
+        for sp in sorted(revealed):
+            cands = set(index.get(sp, ())) if cands is None else cands & index.get(sp, set())
+            if not cands:
+                return []
+        return sorted(cands - {own}, key=sorted)
+
+    def _partial(self, revealed):
+        return self.soft_min <= len(revealed) < 6
+
+    def _soft_fit(self, X, r):
+        """Team strengths over sets of species: full teams as usual, then every partially revealed P2 team
+        shares its residual among the candidates in proportion to their counts."""
+        sp1, sp2 = self._species(X)
+        s, c = defaultdict(float), defaultdict(float)
+        for t1, t2, ri in zip(sp1, sp2, r):
+            s[t1] += ri
+            c[t1] += 1
+            if len(t2) == 6:
+                s[t2] -= ri
+                c[t2] += 1
+        index = defaultdict(set)
+        for team in c:
+            for sp in team:
+                index[sp].add(team)
+        add_s, add_c = defaultdict(float), defaultdict(float)
+        for t1, t2, ri in zip(sp1, sp2, r):
+            cands = self._candidates(index, t2, t1) if self._partial(t2) else []
+            if cands:
+                w = np.array([c[t] for t in cands])
+                for team, wt in zip(cands, w / w.sum()):
+                    add_s[team] -= wt * ri
+                    add_c[team] += wt
+        for team in add_s:
+            s[team] += add_s[team]
+            c[team] += add_c[team]
+        return s, c, index
+
+    def _soft_encode(self, X, state):
+        s, c, index = state
+        sp1, sp2 = self._species(X)
+        effect, count = np.zeros(len(X)), np.zeros(len(X))
+        for i, (t1, t2) in enumerate(zip(sp1, sp2)):
+            cands = self._candidates(index, t2, t1) if self._partial(t2) else []
+            if cands:
+                w = np.array([c[t] for t in cands])
+                e = np.array([s[t] / (c[t] + self.a) for t in cands])
+                effect[i], count[i] = -(w @ e) / w.sum(), w.sum()
+        return effect, count
 
     def _encode(self, X, state):
-        s, c, links, theta = state
+        s, c, links, theta, soft = state
         k1, k2 = self._keys(X, links)
         known = ~np.isnan(k2)
         n1 = np.array([c.get(k, 0) for k in k1], dtype=float)
@@ -264,6 +326,9 @@ class TeamEffect(BaseEstimator, TransformerMixin):
             else:
                 out["tm_pair"] = np.array([s.get(p, 0.0) if ok else 0.0 for p, ok in zip(pairs, known)]) / (n + self.a)
             out["tm_npair"] = n
+        if self.soft:
+            out["tm_soft"], out["tm_nsoft"] = self._soft_encode(X, soft)
+            out["tm"] = out["tm"] + np.where(n2 == 0, out["tm_soft"], 0.0)
         return out
 
     def fit(self, X, y):

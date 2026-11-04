@@ -26,8 +26,10 @@ def p1_track(b):
 
 
 def p2_track(b):
+    """The lead is known from the start, also when it switches out on turn 1 and never shows up again."""
     side = b.sides["p2"]
-    hp, status, pf = {}, {}, {}
+    lead = b.lead2["name"]
+    hp, status, pf = {lead: 1.0}, {lead: "nostatus"}, {lead: 0.0}
     faint_cum, hp_tot, revealed = np.zeros(b.n), np.zeros(b.n), np.zeros(b.n)
     for i in range(b.n):
         if i > 0 and i in b.p2_faint:

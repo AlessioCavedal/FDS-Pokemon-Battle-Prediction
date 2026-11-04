@@ -1,5 +1,6 @@
 """Timeline parsing: state of both players at each decision point of Player 1, fresh move events, Spikes
-and the transitions used by the hidden-faint detector."""
+and the transitions used by the hidden-faint detector. Player 2's lead counts as revealed even when it
+switches out on turn 1 and never shows up in the timeline again."""
 
 import math
 
@@ -71,6 +72,7 @@ class Battle:
         tl = raw["battle_timeline"][:cut]
         self.n = len(tl)
         self.sides = {s: Side(tl, s) for s in SIDES}
+        self.sides["p2"].revealed.setdefault(self.lead2["name"], {})
         self.spikes = {s: self._spikes(s) for s in SIDES}
         self.p2_faint = {}
 

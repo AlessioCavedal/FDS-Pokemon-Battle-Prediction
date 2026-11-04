@@ -2110,5 +2110,229 @@
       "link": true,
       "pair": true
     }
+  },
+  "lr_spline_v10": {
+    "model": "lr_spline",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "sim",
+      "behaviour",
+      "sim2",
+      "context",
+      "forecast"
+    ],
+    "params": {
+      "C": 0.0007,
+      "keys": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ]
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "base_C": 0.0007,
+      "base_spline": [
+        "f_d_fainted",
+        "f_d_hp_sum",
+        "f_p1_fainted",
+        "f_p2_fainted",
+        "f_p1_hp_sum",
+        "f_p2_hp_sum",
+        "f_d_strength",
+        "t_hd_mean",
+        "t_fd_mean",
+        "a_ttk_adv",
+        "m_win_mean",
+        "f_d_alive",
+        "a_a1_hp",
+        "a_a2_hp",
+        "f_d_hp_hard",
+        "f_d_fainted_hard",
+        "f_p2_unrevealed",
+        "m_p1_cover",
+        "m_p2_cover",
+        "a_dmg12",
+        "a_dmg21",
+        "a_speed_logratio",
+        "t_hd_delta10",
+        "f_d_disabled",
+        "e_d_dealt"
+      ],
+      "link": true,
+      "pair": true,
+      "soft": true
+    }
+  },
+  "xgb_v10": {
+    "model": "xgb",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "sim",
+      "behaviour",
+      "sim2",
+      "context",
+      "forecast"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 2294,
+      "learning_rate": 0.007913887246783498,
+      "max_depth": 3,
+      "min_child_weight": 1.9697526022874337,
+      "subsample": 0.49697118197877566,
+      "colsample_bytree": 0.3877025327355442,
+      "reg_lambda": 0.18317956984810999,
+      "reg_alpha": 0.3574349749071232,
+      "gamma": 1.1158538846021717
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true,
+      "pair": true,
+      "soft": true
+    }
+  },
+  "lgbm_v10": {
+    "model": "lgbm",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "sim",
+      "behaviour",
+      "sim2",
+      "context",
+      "forecast"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "n_estimators": 1923,
+      "learning_rate": 0.008081605764973849,
+      "num_leaves": 9,
+      "max_depth": 4,
+      "min_child_samples": 76,
+      "subsample": 0.9092954187203037,
+      "colsample_bytree": 0.21440317409883963,
+      "reg_lambda": 0.009142949784245947,
+      "reg_alpha": 0.010952625812536086,
+      "min_split_gain": 0.0796977105167146,
+      "subsample_freq": 1
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true,
+      "pair": true,
+      "soft": true
+    }
+  },
+  "cat_v10": {
+    "model": "cat",
+    "groups": [
+      "static",
+      "state",
+      "traj",
+      "active",
+      "events",
+      "matchup",
+      "wincon",
+      "sleep",
+      "bag_species",
+      "bag_hp",
+      "bag_moves",
+      "sim",
+      "behaviour",
+      "sim2",
+      "context",
+      "forecast"
+    ],
+    "stack": [
+      "bag_species",
+      "bag_hp",
+      "bag_moves"
+    ],
+    "stack_C": 0.01,
+    "stack_full_C": 0.003,
+    "params": {
+      "iterations": 2883,
+      "learning_rate": 0.006388766767796231,
+      "depth": 6,
+      "l2_leaf_reg": 1.0125444690360867,
+      "random_strength": 2.7787738509370583,
+      "bagging_temperature": 0.16902526989254424,
+      "rsm": 0.551655095551719
+    },
+    "team": {
+      "a": 1.0,
+      "p2": true,
+      "link": true,
+      "pair": true,
+      "soft": true
+    }
   }
 }

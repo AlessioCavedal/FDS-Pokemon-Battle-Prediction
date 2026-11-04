@@ -12,8 +12,9 @@ def team_id(names):
 
 
 def team_keys(b):
-    """Ids of the P1 team, of the P2 team when all six were revealed (or of the five revealed ones), and of
-    the five-species subsets of both full teams, used to match a partially revealed P2 team to a known one.
+    """Ids of the P1 team, of the P2 team when all six were revealed (or of the five revealed ones), of the
+    five-species subsets of both full teams, used to match a partially revealed P2 team to a known one, and of
+    each species of both teams (P2: the revealed ones), used to find all the known teams that contain them.
     Teams are reused across battles, so they identify (groups of) players; the ids are only used through
     TeamEffect."""
     p1, rev2 = [p["name"] for p in b.team], list(b.sides["p2"].revealed)
@@ -22,6 +23,9 @@ def team_keys(b):
          "k_p2part": team_id(rev2) if len(rev2) == 5 else NAN}
     subs1 = [team_id(s) for s in combinations(sorted(p1), 5)]
     subs2 = [team_id(s) for s in combinations(sorted(rev2), 5)] if len(rev2) == 6 else [NAN] * 6
+    sp1 = sorted(team_id([n]) for n in p1)
+    sp2 = sorted(team_id([n]) for n in rev2)
     for k in range(6):
         f[f"k_p1sub{k}"], f[f"k_p2sub{k}"] = subs1[k], subs2[k]
+        f[f"k_p1sp{k}"], f[f"k_p2sp{k}"] = sp1[k], sp2[k] if k < len(sp2) else NAN
     return f

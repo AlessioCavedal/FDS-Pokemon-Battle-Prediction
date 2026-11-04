@@ -7,7 +7,8 @@ Predicting the winner of Gen 2 OU Pokémon battles from Player 1's full team, Pl
 
 1. **Timeline semantics.** Every timeline entry is a decision point of Player 1: the state at the end of the
    turn, plus an extra entry when a Player 1 Pokémon faints. The move field stores the *last* move used by the
-   active Pokémon, so fresh moves are detected as changes of that field.
+   active Pokémon, so fresh moves are detected as changes of that field. Player 2's lead is given separately
+   and counts as revealed even when it switches out on turn 1 and never shows up in the timeline.
 2. **Hidden faints.** Player 2 faints are only recorded when they coincide with a Player 1 faint; otherwise the
    fainted Pokémon silently disappears. A LightGBM detector is trained on Player 1 transitions, where faints are
    known (the faint entry is removed so that they look like Player 2's), and applied, cross-fitted, to every
@@ -25,6 +26,10 @@ Predicting the winner of Gen 2 OU Pokémon battles from Player 1's full team, Pl
      frozen (typical lengths measured on the training battles), always allows a STAB move, applies weather
      and screens to the duel of the actives, and is also run against Player 2's unrevealed Pokémon guessed
      from the team co-occurrences of the training battles;
+   - a learned forecast of the next turns: LightGBM regressors fitted on the training timelines map the
+     state after 12 to 24 entries (the same features recomputed on the truncated timeline) to the change of
+     the faint difference, the HP difference and each player's faints over the next 5 or 10 entries, and are
+     applied to the last decision point (label-free, cross-fitted over the training battles);
    - action statistics (move classes, attack effectiveness, switches, damage dealt, healing) and switching
      behaviour: each player's chance to switch out in the current matchup and its switches beyond the
      expected ones, from voluntary-switch rates per pair of actives learned from the training battles;
@@ -39,8 +44,10 @@ Predicting the winner of Gen 2 OU Pokémon battles from Player 1's full team, Pl
    (outcome minus the cross-fitted logistic-regression probability) of the training battles played with it:
    it counts positively when the team was Player 1's and negatively when it was Player 2's. Player 2's team is
    identified when all six Pokémon are revealed, or when the five revealed ones belong to a single known team.
-   A head-to-head term does the same for battles between the same two teams, for example series between the
-   same players. The encoding is cross-fitted, and the team-matching map is rebuilt from the training rows of
+   When only three to five of its Pokémon are revealed, the battle is matched to all the known teams that
+   contain them, weighted by how often each was played: it spreads its residual over these candidates when
+   fitting, and gets their weighted effect. A head-to-head term does the same for battles between the same two
+   teams, for example series between the same players. The encoding is cross-fitted, and the team-matching map is rebuilt from the training rows of
    each fold.
 5. **Models.** A logistic regression with splines on the key state features, plus tuned LightGBM, XGBoost and
    CatBoost models. The tree models receive the bag features compressed into a cross-fitted
@@ -78,6 +85,9 @@ from the training battles, and the test set is only used for prediction.
 | Blend of `lr_spline_sim`, `xgb_sim`, `lgbm_sim`, `cat_sim` | `blend_sim` | 0.7156 (nested) | 0.5483 |
 | + simulation v2 and field/team condition, CatBoost | `cat_sim3` | 0.7165 | 0.5474 |
 | Blend of `lr_spline_sim3`, `xgb_sim3`, `lgbm_sim3`, `cat_sim3` | `blend_sim3` | 0.7162 (nested) | 0.5463 |
+| + soft matching of partially revealed P2 teams, learned forecast, P2 lead fix, LightGBM | `lgbm_v10` | 0.7184 | 0.5447 |
+| Same features with CatBoost | `cat_v10` | 0.7188 | 0.5446 |
+| Blend of `lr_spline_v10`, `xgb_v10`, `lgbm_v10`, `cat_v10` | `blend_v10` | 0.7197 (nested) | 0.5432 |
 
 ## Experiments
 
@@ -108,8 +118,7 @@ src/
   replay.py      timeline parsing, move events, transitions
   faint.py       hidden-faint detector
   features/      feature groups (state, active, events, matchup, simulation, switching, condition, bags,
-                 team, ...)
-                 and the cached build
+                 team, forecast, ...) and the cached build
   models.py      model factory, stacked logits, team effect, spline logistic regression
   pipelines.py   named pipelines from configs/pipelines.json
   cv.py          repeated cross-validation, out-of-fold predictions, experiment log
@@ -124,12 +133,12 @@ experiments/     experiment log
 
 ```bash
 pip install -r requirements.txt
-python -m src.cli features                      # build and cache the features
-python -m src.cli cv cat_sim3                   # 5x3 cross-validation of a pipeline
+python -m src.cli features                      # build and cache the features (about 6 minutes)
+python -m src.cli cv cat_v10                    # 5x3 cross-validation of a pipeline
 python -m src.tune xgb_team --trials 60         # hyper-parameter search
-python -m src.cli blend lr_spline_sim3 xgb_sim3 lgbm_sim3 cat_sim3 --save blend_sim3
-python -m src.cli submit --blend blend_sim3     # fit on all training battles, write submissions/blend_sim3.csv
-python -m src.cli submit --pipeline cat_sim3    # same for a single pipeline
+python -m src.cli blend lr_spline_v10 xgb_v10 lgbm_v10 cat_v10 --save blend_v10
+python -m src.cli submit --blend blend_v10      # fit on all training battles, write submissions/blend_v10.csv
+python -m src.cli submit --pipeline cat_v10     # same for a single pipeline
 ```
 
 - `blend` uses the out-of-fold predictions produced by `cv`; `submit` only needs the configurations.
