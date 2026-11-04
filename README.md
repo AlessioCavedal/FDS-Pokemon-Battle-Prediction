@@ -47,8 +47,10 @@ Predicting the winner of Gen 2 OU Pokémon battles from Player 1's full team, Pl
    When only three to five of its Pokémon are revealed, the battle is matched to all the known teams that
    contain them, weighted by how often each was played: it spreads its residual over these candidates when
    fitting, and gets their weighted effect. A head-to-head term does the same for battles between the same two
-   teams, for example series between the same players. The encoding is cross-fitted, and the team-matching map is rebuilt from the training rows of
-   each fold.
+   teams, for example series between the same players. Each team also gets a raw rating, its shrunk win rate
+   over the battles it played as Player 1 or as Player 2 (with the same matching): unlike the residual, it keeps
+   the part of a player's strength already reflected in the battle state. The encodings are cross-fitted, and
+   the team-matching map is rebuilt from the training rows of each fold.
 5. **Models.** A logistic regression with splines on the key state features, plus tuned LightGBM, XGBoost and
    CatBoost models. The tree models receive the bag features compressed into a cross-fitted
    logistic-regression logit, a cross-fitted logit of a logistic regression on all features, and the
@@ -88,6 +90,8 @@ from the training battles, and the test set is only used for prediction.
 | + soft matching of partially revealed P2 teams, learned forecast, P2 lead fix, LightGBM | `lgbm_v10` | 0.7184 | 0.5447 |
 | Same features with CatBoost | `cat_v10` | 0.7188 | 0.5446 |
 | Blend of `lr_spline_v10`, `xgb_v10`, `lgbm_v10`, `cat_v10` | `blend_v10` | 0.7197 (nested) | 0.5432 |
+| + raw team ratings, CatBoost | `cat_v11` | 0.7204 | 0.5421 |
+| Blend of `lr_spline_v11`, `xgb_v11`, `lgbm_v11`, `cat_v11` | `blend_v11` | 0.7208 (nested) | 0.5409 |
 
 ## Experiments
 
@@ -134,11 +138,11 @@ experiments/     experiment log
 ```bash
 pip install -r requirements.txt
 python -m src.cli features                      # build and cache the features (about 6 minutes)
-python -m src.cli cv cat_v10                    # 5x3 cross-validation of a pipeline
+python -m src.cli cv cat_v11                    # 5x3 cross-validation of a pipeline
 python -m src.tune xgb_team --trials 60         # hyper-parameter search
-python -m src.cli blend lr_spline_v10 xgb_v10 lgbm_v10 cat_v10 --save blend_v10
-python -m src.cli submit --blend blend_v10      # fit on all training battles, write submissions/blend_v10.csv
-python -m src.cli submit --pipeline cat_v10     # same for a single pipeline
+python -m src.cli blend lr_spline_v11 xgb_v11 lgbm_v11 cat_v11 --save blend_v11
+python -m src.cli submit --blend blend_v11      # fit on all training battles, write submissions/blend_v11.csv
+python -m src.cli submit --pipeline cat_v11     # same for a single pipeline
 ```
 
 - `blend` uses the out-of-fold predictions produced by `cv`; `submit` only needs the configurations.

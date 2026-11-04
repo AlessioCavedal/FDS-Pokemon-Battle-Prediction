@@ -49,7 +49,8 @@ def team_steps(spec, cols, seed=SEED):
                                             split=team.get("split", False), joint=team.get("joint", False),
                                             lam=team.get("lam", 1.0), lam_pair=team.get("lam_pair"), seed=seed,
                                             drop_base=own_base, soft=team.get("soft", False),
-                                            soft_min=team.get("soft_min", 3))))
+                                            soft_min=team.get("soft_min", 3), raw=team.get("raw", False),
+                                            raw_a=team.get("raw_a", 2.0))))
     return steps
 
 

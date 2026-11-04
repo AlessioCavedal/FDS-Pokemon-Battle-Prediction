@@ -163,15 +163,19 @@ class TeamEffect(BaseEstimator, TransformerMixin):
     training team containing them. With `soft`, a P2 team with `soft_min` to five revealed species is matched
     to all the training teams that contain them, weighted by how often each was played: such battles spread
     their residual over these candidates and get their weighted effect (`tm_soft`, also added to `tm` when
-    the P2 team is not known otherwise). With `joint`, the strengths are instead fitted together
-    (Bradley-Terry style, see _joint). fit_transform is cross-fitted, transform uses all training rows."""
+    the P2 team is not known otherwise). With `raw`, the same matching also gives the raw rating of both
+    teams, the shrunk win rate (minus one half) over the battles each won as P1 or as P2 (`tm_raw1`,
+    `tm_raw2`, shrinkage `raw_a`): unlike the residual it keeps the part of a player's strength already
+    reflected in the battle state. With `joint`, the strengths are instead fitted together (Bradley-Terry
+    style, see _joint). fit_transform is cross-fitted, transform uses all training rows."""
 
     def __init__(self, base="stack_logit_full", a=5.0, p2=True, link=False, pair=False, split=False, joint=False,
-                 lam=1.0, lam_pair=None, n_splits=5, seed=SEED, drop_base=False, soft=False, soft_min=3):
+                 lam=1.0, lam_pair=None, n_splits=5, seed=SEED, drop_base=False, soft=False, soft_min=3, raw=False,
+                 raw_a=2.0):
         self.base, self.a, self.p2, self.link, self.pair, self.split = base, a, p2, link, pair, split
         self.joint, self.lam, self.lam_pair = joint, lam, lam_pair
         self.n_splits, self.seed, self.drop_base = n_splits, seed, drop_base
-        self.soft, self.soft_min = soft, soft_min
+        self.soft, self.soft_min, self.raw, self.raw_a = soft, soft_min, raw, raw_a
 
     @staticmethod
     def _pair_key(a, b):
@@ -242,7 +246,8 @@ class TeamEffect(BaseEstimator, TransformerMixin):
                     c[a, b] += 1
                     s[b, a] -= ri
                     c[b, a] += 1
-        return s, c, links, theta, self._soft_fit(X, r) if self.soft else None
+        soft = self._soft_fit(X, r) if self.soft else None
+        return s, c, links, theta, soft, self._soft_fit(X, y - 0.5) if self.raw else None
 
     @staticmethod
     def _species(X):
@@ -302,8 +307,26 @@ class TeamEffect(BaseEstimator, TransformerMixin):
                 effect[i], count[i] = -(w @ e) / w.sum(), w.sum()
         return effect, count
 
+    def _raw_encode(self, X, state):
+        s, c, index = state
+        sp1, sp2 = self._species(X)
+
+        def rate(team):
+            return s.get(team, 0.0) / (c.get(team, 0.0) + self.raw_a)
+
+        p1, p2 = np.array([rate(t) for t in sp1]), np.zeros(len(X))
+        for i, (t1, t2) in enumerate(zip(sp1, sp2)):
+            if len(t2) == 6:
+                p2[i] = rate(t2)
+            elif self._partial(t2):
+                cands = self._candidates(index, t2, t1)
+                if cands:
+                    w = np.array([c[t] for t in cands])
+                    p2[i] = w @ np.array([rate(t) for t in cands]) / w.sum()
+        return p1, p2
+
     def _encode(self, X, state):
-        s, c, links, theta, soft = state
+        s, c, links, theta, soft, raw = state
         k1, k2 = self._keys(X, links)
         known = ~np.isnan(k2)
         n1 = np.array([c.get(k, 0) for k in k1], dtype=float)
@@ -329,6 +352,8 @@ class TeamEffect(BaseEstimator, TransformerMixin):
         if self.soft:
             out["tm_soft"], out["tm_nsoft"] = self._soft_encode(X, soft)
             out["tm"] = out["tm"] + np.where(n2 == 0, out["tm_soft"], 0.0)
+        if self.raw:
+            out["tm_raw1"], out["tm_raw2"] = self._raw_encode(X, raw)
         return out
 
     def fit(self, X, y):
