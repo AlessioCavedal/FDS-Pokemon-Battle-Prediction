@@ -124,5 +124,34 @@
     },
     "logloss": 0.5497200988154778,
     "acc": 0.7126
+  },
+  "lgbm_v11": {
+    "params": {
+      "n_estimators": 865,
+      "learning_rate": 0.015827572621365256,
+      "num_leaves": 19,
+      "max_depth": 4,
+      "min_child_samples": 74,
+      "subsample": 0.9143517299488919,
+      "colsample_bytree": 0.14276178948755236,
+      "reg_lambda": 0.052964255533606175,
+      "reg_alpha": 0.027830371146546073,
+      "min_split_gain": 0.13131693187481425
+    },
+    "logloss": 0.538762294219745,
+    "acc": 0.7191
+  },
+  "cat_v11": {
+    "params": {
+      "iterations": 2478,
+      "learning_rate": 0.010321680797785717,
+      "depth": 6,
+      "l2_leaf_reg": 6.34487325810215,
+      "random_strength": 3.418823185226269,
+      "bagging_temperature": 0.1553707858984754,
+      "rsm": 0.5361211097023024
+    },
+    "logloss": 0.5389095678630144,
+    "acc": 0.7192999999999998
   }
 }
