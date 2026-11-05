@@ -18,7 +18,8 @@ def specs():
 
 
 def columns(spec, all_columns):
-    return select(all_columns, spec["groups"] + (["team"] if spec.get("team") else []))
+    """Columns named one by one in the spec, then the ones selected by group."""
+    return spec.get("columns", []) + select(all_columns, spec["groups"] + (["team"] if spec.get("team") else []))
 
 
 def stack_steps(spec, cols, seed=SEED):

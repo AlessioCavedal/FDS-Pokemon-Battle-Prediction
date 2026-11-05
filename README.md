@@ -55,7 +55,9 @@ Predicting the winner of Gen 2 OU Pokémon battles from Player 1's full team, Pl
    CatBoost models. The tree models receive the bag features compressed into a cross-fitted
    logistic-regression logit, a cross-fitted logit of a logistic regression on all features, and the
    team-effect features. Blends average the models' logits with non-negative weights fitted on out-of-fold
-   predictions.
+   predictions. The final blend adds a compact logistic regression on 17 key columns and the team-effect
+   features: alone it is the weakest member, but it takes the largest weight, because a low-variance linear
+   model complements the tree models trained on about 800 columns.
 
 Only the competition data and the supplied type chart are used. The Pokédex (types and base stats) is built
 from the training battles, and the test set is only used for prediction.
@@ -68,6 +70,8 @@ from the training battles, and the test set is only used for prediction.
 - Every target-dependent step is fitted inside the training folds: the hidden-faint detector, the stacked
   logits and the team effect are cross-fitted, and blend weights are evaluated with a nested split.
 - Hyper-parameters are tuned with Optuna on a different fold split than the one used to compare models.
+- Main changes are audited with shuffled labels (accuracy close to 0.50) and on a fresh 5×2 fold split, with the
+  blend weights kept fixed.
 
 ## Main results
 
@@ -92,6 +96,19 @@ from the training battles, and the test set is only used for prediction.
 | Blend of `lr_spline_v10`, `xgb_v10`, `lgbm_v10`, `cat_v10` | `blend_v10` | 0.7197 (nested) | 0.5432 |
 | + raw team ratings, CatBoost | `cat_v11` | 0.7204 | 0.5421 |
 | Blend of `lr_spline_v11`, `xgb_v11`, `lgbm_v11`, `cat_v11` | `blend_v11` | 0.7208 (nested) | 0.5409 |
+| Compact logistic regression, 17 columns and the team effect | `lr_compact_v12` | 0.7129 | 0.5489 |
+| `blend_v11` members and `lr_compact_v12` | `blend_v12` | 0.7219 (nested) | 0.5390 |
+
+## Final submissions
+
+The Kaggle notebook clones this repository and regenerates the three selected submissions, chosen on
+cross-validation:
+
+| Submission | Command | Accuracy (5×3 CV) |
+|---|---|---|
+| Blend of five models | `python -m src.cli submit --blend blend_v12` | 0.7219 (nested) |
+| Blend of four models | `python -m src.cli submit --blend blend_v11` | 0.7208 (nested) |
+| CatBoost | `python -m src.cli submit --pipeline cat_v11` | 0.7204 |
 
 ## Experiments
 
@@ -110,7 +127,10 @@ improve validation and are not used by the final pipelines:
 - re-tuning after the team effect;
 - separate Player 1 / Player 2 team terms;
 - critical hits and usage-based typical moves in the simulation;
-- a joint Bradley–Terry estimate of the team strengths.
+- a joint Bradley–Terry estimate of the team strengths;
+- a pairwise coverage score on top of the matchup matrix (best answers and worst matchups);
+- a compact gradient-boosting member, and automatic L1 selection over all columns, in place of the compact
+  logistic regression.
 
 ## Layout
 
@@ -140,8 +160,8 @@ pip install -r requirements.txt
 python -m src.cli features                      # build and cache the features (about 6 minutes)
 python -m src.cli cv cat_v11                    # 5x3 cross-validation of a pipeline
 python -m src.tune xgb_team --trials 60         # hyper-parameter search
-python -m src.cli blend lr_spline_v11 xgb_v11 lgbm_v11 cat_v11 --save blend_v11
-python -m src.cli submit --blend blend_v11      # fit on all training battles, write submissions/blend_v11.csv
+python -m src.cli blend lr_spline_v11 xgb_v11 lgbm_v11 cat_v11 lr_compact_v12 --save blend_v12
+python -m src.cli submit --blend blend_v12      # fit on all training battles, write submissions/blend_v12.csv
 python -m src.cli submit --pipeline cat_v11     # same for a single pipeline
 ```
 
