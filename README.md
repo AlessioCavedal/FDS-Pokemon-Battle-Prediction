@@ -55,9 +55,7 @@ Predicting the winner of Gen 2 OU Pokémon battles from Player 1's full team, Pl
    CatBoost models. The tree models receive the bag features compressed into a cross-fitted
    logistic-regression logit, a cross-fitted logit of a logistic regression on all features, and the
    team-effect features. Blends average the models' logits with non-negative weights fitted on out-of-fold
-   predictions. The final blend adds a compact logistic regression on 17 key columns and the team-effect
-   features: alone it is the weakest member, but it takes the largest weight, because a low-variance linear
-   model complements the tree models trained on about 800 columns.
+   predictions.
 
 Only the competition data and the supplied type chart are used. The Pokédex (types and base stats) is built
 from the training battles, and the test set is only used for prediction.
@@ -96,19 +94,37 @@ from the training battles, and the test set is only used for prediction.
 | Blend of `lr_spline_v10`, `xgb_v10`, `lgbm_v10`, `cat_v10` | `blend_v10` | 0.7197 (nested) | 0.5432 |
 | + raw team ratings, CatBoost | `cat_v11` | 0.7204 | 0.5421 |
 | Blend of `lr_spline_v11`, `xgb_v11`, `lgbm_v11`, `cat_v11` | `blend_v11` | 0.7208 (nested) | 0.5409 |
-| Compact logistic regression, 17 columns and the team effect | `lr_compact_v12` | 0.7129 | 0.5489 |
-| `blend_v11` members and `lr_compact_v12` | `blend_v12` | 0.7219 (nested) | 0.5390 |
+| Compact model (see below) | `compact_v5`, `ensemble_from_lr` | 0.7204 | 0.5395 |
+| Logit blend of the compact model and `blend_v11` | `blend_v11` in `compact/` | 0.7232 (nested) | 0.5343 |
 
 ## Final submissions
 
-The Kaggle notebook clones this repository and regenerates the three selected submissions, chosen on
-cross-validation:
+The Kaggle notebook clones this repository and regenerates the three selected submissions:
 
-| Submission | Command | Accuracy (5×3 CV) |
+| Submission | Where | Accuracy (5×3 CV) |
 |---|---|---|
-| Blend of five models | `python -m src.cli submit --blend blend_v12` | 0.7219 (nested) |
-| Blend of four models | `python -m src.cli submit --blend blend_v11` | 0.7208 (nested) |
-| CatBoost | `python -m src.cli submit --pipeline cat_v11` | 0.7204 |
+| Blend of four models (`blend_v11`) | `python -m src.cli submit --blend blend_v11` | 0.7208 (nested) |
+| Compact model | `compact/`, `ensemble_from_lr` on `compact_v5` | 0.7204 |
+| Logit blend of the compact model and `blend_v11` | `compact/`, `blend_v11` on `compact_v5_v11` | 0.7232 (nested) |
+
+## Compact model
+
+`compact/` is a second pipeline with its own battle replay, feature registry and experiment runner: 18 columns
+kept by a greedy selection on repeated cross-validation, and an ensemble of four gradient-boosting models that
+start from the log-odds of a logistic regression and only learn a correction. Its hidden-faint detector also uses
+the physical evidence of each change of active Pokémon (speed order, expected damage on the leaver and on the
+incoming Pokémon, weather, screens, end-of-turn damage). As in `src/`, the Pokédex is built from the training
+battles and each battle's own details; a species with no data in either place is replaced at load time.
+`features/v11_bridge.py` trains `blend_v11` of `src/` on the same battles, so that the two can be blended on their
+logits, with the weight of the compact model (0.55) chosen by log-loss on the 5×3 cross-validation.
+
+```bash
+cd compact
+python main.py train --features compact_v5 --models ensemble_from_lr --out runs
+python main.py predict --run runs/compact_v5__ensemble_from_lr --out ../submissions/compact.csv
+python main.py train --features compact_v5_v11 --models blend_v11 --params blend_params.json --out runs
+python main.py predict --run runs/compact_v5_v11__blend_v11-tuned --out ../submissions/compact_blend.csv
+```
 
 ## Experiments
 
@@ -128,9 +144,7 @@ improve validation and are not used by the final pipelines:
 - separate Player 1 / Player 2 team terms;
 - critical hits and usage-based typical moves in the simulation;
 - a joint Bradley–Terry estimate of the team strengths;
-- a pairwise coverage score on top of the matchup matrix (best answers and worst matchups);
-- a compact gradient-boosting member, and automatic L1 selection over all columns, in place of the compact
-  logistic regression.
+- a pairwise coverage score on top of the matchup matrix (best answers and worst matchups).
 
 ## Layout
 
@@ -151,6 +165,7 @@ src/
   cli.py         command line entry point
 configs/         pipelines, blends (members and weights), tuned parameters
 experiments/     experiment log
+compact/         second pipeline (see "Compact model")
 ```
 
 ## Usage
@@ -160,8 +175,8 @@ pip install -r requirements.txt
 python -m src.cli features                      # build and cache the features (about 6 minutes)
 python -m src.cli cv cat_v11                    # 5x3 cross-validation of a pipeline
 python -m src.tune xgb_team --trials 60         # hyper-parameter search
-python -m src.cli blend lr_spline_v11 xgb_v11 lgbm_v11 cat_v11 lr_compact_v12 --save blend_v12
-python -m src.cli submit --blend blend_v12      # fit on all training battles, write submissions/blend_v12.csv
+python -m src.cli blend lr_spline_v11 xgb_v11 lgbm_v11 cat_v11 --save blend_v11
+python -m src.cli submit --blend blend_v11      # fit on all training battles, write submissions/blend_v11.csv
 python -m src.cli submit --pipeline cat_v11     # same for a single pipeline
 ```
 

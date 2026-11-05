@@ -2562,40 +2562,5 @@
       "soft": true,
       "raw": true
     }
-  },
-  "lr_compact_v12": {
-    "model": "lr",
-    "groups": [],
-    "columns": [
-      "f_d_hp_sum",
-      "c_healthy",
-      "c_spikes",
-      "c_boosts",
-      "c_bulk_spd",
-      "v_sub_diff",
-      "v_trap_diff",
-      "e_d_healed",
-      "z_act_duel",
-      "c_snorlax",
-      "v_mv_res",
-      "v_p_switch_diff",
-      "v_switch_excess",
-      "z_sim_seen_left",
-      "f_p2_pf_uncertain",
-      "f_p2_fainted",
-      "f_p2_fainted_rec"
-    ],
-    "params": {
-      "C": 0.05
-    },
-    "team": {
-      "a": 1.0,
-      "p2": true,
-      "link": true,
-      "pair": true,
-      "soft": true,
-      "raw": true,
-      "base_C": 0.05
-    }
   }
 }

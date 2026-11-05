@@ -1,0 +1,5 @@
+{
+  "model": "blend_v11",
+  "feature_set": "compact_v5_v11",
+  "params": {"w": 0.55, "base": "ensemble_from_lr", "tuned": []}
+}
