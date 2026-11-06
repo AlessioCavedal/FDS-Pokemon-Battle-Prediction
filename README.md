@@ -25,24 +25,14 @@ The group built two pipelines in parallel, exchanging ideas:
 - **Pipeline B** (`compact/`) is compact: 18 selected columns and a logistic regression (LR) corrected by four
   gradient-boosting models that start from its log-odds.
 
-In both, the Pokédex (types and base stats) comes from the battles and the test set is only predicted.
-
-## Replaying the timelines
-
-Both pipelines replay each timeline before building any feature, to rebuild what it omits:
-
-- every entry is a decision point of Player 1 (P1): the state at the end of the turn, plus an extra entry when a P1
-  Pokémon faints;
-- the move field stores the *last* move used by the active Pokémon, so fresh moves are detected as changes of that
-  field;
-- Spikes, screens and weather are not recorded, so they are rebuilt from the moves;
-- Player 2's (P2) lead is given separately and counts as revealed even when it switches out on turn 1 and never
-  shows up in the timeline.
+In both, the Pokédex (types and base stats) comes from the battles and the test set is only predicted. Each replays
+the timelines before building any feature, to detect fresh moves and to rebuild what the records omit, such as
+Spikes, screens, weather and most of Player 2's (P2) faints.
 
 ## Ten feature ideas
 
-Both pipelines compare the two players through the same ideas. Pipeline A turns them into groups of columns, named
-by prefix in `src/features/build.py`; pipeline B into single columns, listed in `compact/feature_catalog.py`.
+Both pipelines compare Player 1 (P1) and P2 through the same ideas. Pipeline A turns them into groups of columns,
+named by prefix in `src/features/build.py`; pipeline B into single columns, listed in `compact/feature_catalog.py`.
 
 | # | Idea | What it captures | Pipeline A | Pipeline B |
 |---|---|---|---|---|
@@ -57,144 +47,74 @@ by prefix in `src/features/build.py`; pipeline B into single columns, listed in 
 | 9 | Switching | who is under pressure, from voluntary-switch rates per pair of actives | `v_` | `p_switch_diff`, `switch_excess_all` |
 | 10 | Team identity | reused teams as a proxy for the players, and partly revealed P2 teams completed from the known ones | `k_`, team effect | `tr_p1`, `tr_p2`, `te_pair_mean`, `hidden_bst` |
 
-In pipeline A these ideas become about 400 columns, per player and per snapshot, plus 392 bag columns of species,
-alive HP and revealed moves.
+**Hidden knockouts.** P2's faints are recorded almost only when simultaneous with P1's (0.5 per battle). P1's faints
+are always recorded, so a gradient-boosting detector trained on P1's transitions finds about one more per battle (AUC
+0.98, or 0.99 in pipeline B, which also weighs the physical evidence of each switch). Without this repair the 18
+columns of B fall from 71.98% to 69.48%.
 
-**Hidden knockouts.** P2's faints are recorded almost only when simultaneous with P1's: 0.5 per battle. Since P1's
-faints are always recorded, a gradient-boosting detector is trained on P1's transitions, with the faint entry removed
-so that they look like P2's, and applied to every P2 disappearance. It finds about one more faint per battle. The
-detector of pipeline A reaches AUC 0.98; the one of pipeline B reaches 0.99 by also weighing the physical evidence
-of each change of active Pokémon (speed order, expected damage on the leaver and on the incoming Pokémon, weather,
-screens, end-of-turn damage). Without this repair the 18 columns of B fall from 71.98% to 69.48%.
-
-**Simulation.** The remaining Pokémon fight a sequence of one-on-one duels: Gen 2 damage with the revealed moves,
-alone or with the typical moves of each species learned from the training battles. The winner keeps its remaining HP
-and the loser sends in its best answer. A second version of pipeline A also counts the turns still lost asleep or
-frozen, always allows a STAB move, applies weather and screens to the duel of the actives, and is also run against
-P2's unrevealed Pokémon guessed from the team co-occurrences of the training battles.
-
-**Forecast.** In pipeline A, LightGBM regressors fitted on the training timelines map the state after 12 to 24
-entries (the same features recomputed on the truncated timeline) to the change of the faint difference, the HP
-difference and each player's faints over the next 5 or 10 entries, and are applied to the last decision point
-(label-free, cross-fitted over the training battles).
-
-**Switching.** Voluntary-switch rates per pair of actives, learned from the training battles, give each player's
-chance to switch out in the current matchup and its switches beyond the expected ones.
+**Simulation and forecast.** The remaining Pokémon fight a sequence of one-on-one duels with the Gen 2 damage
+formula: the winner keeps its HP and the loser sends in its best answer. Pipeline A also forecasts the next turns,
+with regressors trained on truncated timelines.
 
 **Team identity.** There are 4,167 distinct P1 teams in the 10,000 training battles, and 70% of the test battles use
-a P1 team that also appears in training, so a rare team is a proxy for the player behind it.
+a P1 team seen in training, so a rare team is a proxy for its player. Pipeline A encodes the shrunk residual of each
+team against a cross-fitted LR, a head-to-head term and a raw rating; pipeline B the win rates of both teams.
+Partly revealed P2 teams are matched to the known teams that contain them.
 
-- In pipeline A the team effect is the shrunk mean residual (outcome minus the cross-fitted LR probability) of the
-  training battles played with a team: it counts positively when the team was P1's and negatively when it was P2's.
-  P2's team is identified when all six Pokémon are revealed, or when the five revealed ones belong to a single known
-  team. When only three to five are revealed, the battle is matched to all the known teams that contain them,
-  weighted by how often each was played. A head-to-head term does the same for battles between the same two teams,
-  and a raw rating, the shrunk win rate of each team from both sides, keeps the part of a player's strength already
-  reflected in the battle state.
-- In pipeline B the pool of known teams gives the win rates of P1's and P2's teams (`tr_p1`, `tr_p2`) and fills P2's
-  unrevealed slots (`phpw_spd`), while `te_pair_mean` encodes the species pairs on the field and `hidden_bst` the
-  expected strength of P2's hidden Pokémon.
+In pipeline A these ideas become about 400 columns, per player and per snapshot, plus 392 bag columns of species,
+alive HP and revealed moves. Each module's docstring explains the details.
 
-All these encodings are cross-fitted, and the team-matching map is rebuilt from the training rows of each fold.
+## Selection and models
 
-## Feature selection
+**Pipeline A** keeps or rejects whole groups of columns on paired CV. F1 blends the logits of a spline LR and of
+XGBoost, LightGBM and CatBoost tuned with Optuna; the trees see the bags as one cross-fitted logit.
 
-**Pipeline A** keeps or rejects whole groups of columns on paired CV. Early drop-one-group ablations cost up to 0.7
-points. The bag columns reach the boosters compressed into one cross-fitted logit.
+**Pipeline B** selects single columns: a greedy forward-backward search on paired log-loss leaves 26, and a
+multi-seed revalidation with a corrected t-test leaves 18, covering all the ideas but the duels. LR reaches 71.98% on
+them and boosters from scratch 70.91% to 71.58%, so the four boosters of F2 start from its log-odds and only learn a
+correction.
 
-**Pipeline B** selects single columns, in five steps of 14, 19, 19, 20 and 26 columns: a greedy forward-backward
-search adds or removes one column at a time on paired log-loss, without lowering accuracy. A multi-seed revalidation
-(6 seeds × 5 folds, corrected repeated k-fold t-test by Nadeau and Bengio) then drops the columns that do not help,
-leaving 18. They cover all the ideas but the duels. Removing one group of columns from the LR of pipeline B costs:
-
-| Columns removed | Accuracy | Log-loss |
-|---|---|---|
-| Material and knockouts | −1.76 points | +0.0185 |
-| Team identity | −1.24 points | +0.0096 |
-| Field | −1.19 points | +0.0082 |
-| Simulation | −0.40 points | +0.0035 |
-| Switching | −0.35 points | +0.0021 |
-
-## Models
-
-**Pipeline A.** A logistic regression with splines on the key state features, plus LightGBM, XGBoost and CatBoost
-tuned with Optuna. The tree models receive the bag logit, a cross-fitted logit of a logistic regression on all
-features, and the team-effect features. F1 averages the logits of the four models with non-negative weights fitted
-on out-of-fold predictions (CatBoost 0.37, LightGBM 0.27, spline LR 0.21, XGBoost 0.15).
-
-**Pipeline B.** An L1 logistic regression on the 18 columns already reaches 71.98%, while boosters trained from
-scratch with default parameters reach 70.91% to 71.58%. So four boosters (scikit-learn gradient boosting, CatBoost,
-LightGBM, XGBoost) start from its log-odds and only learn a small correction. F2 averages their probabilities, which
-lowers the log-loss by 0.003.
-
-**F3** blends F1 and F2 on their logits. `compact/features/v11_bridge.py` trains `blend_v11` of `src/` on the same
-battles, and the weight of F2 (0.55) is chosen by log-loss on the CV.
+**F3** blends F1 and F2 on their logits, with the weight of F2 chosen by log-loss.
 
 ## Validation
 
-- Decisions used repeated stratified 5-fold CV with duplicates grouped, comparing changes fold by fold. Accuracy is
-  the target metric, with log-loss and AUC as tie-breakers.
-- All the numbers here share the same three repeats (`src/cv.py`, seeds 42 to 44). Those of pipeline B were measured
-  on these folds with the final code. `python main.py evaluate --n-seeds 3` in `compact/` runs the same protocol, but
-  it groups duplicates on the whole record, so its folds differ slightly.
-- Label-dependent steps are cross-fitted inside the training folds, blend weights are evaluated with a nested split
-  and Optuna used a different split than the one used to compare models.
-- With shuffled labels accuracy is 50.4% for LightGBM in pipeline A, and 50.6% (LR) and 49.8% (F2) in pipeline B. On
-  fresh folds (5×2, fixed weights) F1, F2 and F3 reach 72.04%, 72.01% and 72.43%.
-- Selection still biases CV: repeating the column selection of pipeline B inside the folds costs 0.35 points (one
-  repeat). Fresh folds cannot show this, because they reuse the same battles.
+Decisions used repeated stratified 5-fold CV with duplicates grouped, comparing changes fold by fold. All the numbers
+here use the same three repeats (`src/cv.py`); `python main.py evaluate --n-seeds 3` in `compact/` groups duplicates
+slightly differently, so its folds are not identical. Label-dependent steps are cross-fitted inside the training
+folds, blend weights are nested and Optuna used a separate split. Shuffled labels score about 50%, and on fresh folds
+F1, F2 and F3 reach 72.0%, 72.0% and 72.4%. Selection still biases CV: repeating the selection of pipeline B inside
+the folds costs 0.35 points (one repeat).
 
-**Against the leaderboards.** On 14 submissions the public score stays within one standard error of CV (1.2 points
-on 1,500 battles), 0.45 points lower on average, but it is uncorrelated with CV over the last ten: it was only a
-sanity check. On the private split (3,500 battles, standard error 0.8) the three finals fall 1.5 to 2.0 points below
-CV. Post-hoc KS tests on 435 columns find no train–test shift, so noise and selection on the same battles likely
-explain it. F1 leads F3 and F2 by 7 and 12 public and 5 and 16 private battles, within one paired standard error.
+On 14 submissions the public score stays within one standard error of CV (1.2 points on 1,500 battles), 0.45 lower on
+average, but is uncorrelated over the last ten: it was only a sanity check. On the private split the three finals
+fall 1.5 to 2.0 points below CV (standard error 0.8). Post-hoc KS tests on 435 columns find no train–test shift, so
+noise and selection on the same battles likely explain it. F1 leads F3 and F2 by 5 and 16 private battles, within one
+paired standard error.
 
 ## CV results
 
-Pipeline A, each row adding to the previous one from the tuned CatBoost onwards (`experiments/log.csv`):
+Rows with + add to the row above.
 
-| Step | Pipeline | Accuracy | Log-loss |
+| Model | Name | Accuracy | Log-loss |
 |---|---|---|---|
-| Logistic regression, first feature set | `lr_base` | 69.32% | 0.5736 |
-| LightGBM with the stacked bag logit | `lgbm_stack` | 70.31% | 0.5635 |
-| Spline logistic regression | `lrs_mk_v4ref` | 70.55% | 0.5571 |
-| Tuned CatBoost with the stacked logits | `cat_t2` | 70.72% | 0.5574 |
+| A: LR, first feature set | `lr_base` | 69.32% | 0.5736 |
+| A: LightGBM with the bag logit | `lgbm_stack` | 70.31% | 0.5635 |
+| A: tuned CatBoost with the stacked logits | `cat_t2` | 70.72% | 0.5574 |
 | + team effect, head-to-head term | `cat_h2h` | 71.14% | 0.5521 |
-| + simulation, switching behaviour | `cat_sim` | 71.55% | 0.5497 |
-| + simulation v2, field and team condition | `cat_sim3` | 71.65% | 0.5474 |
+| + simulation, switching, field and team condition | `cat_sim3` | 71.65% | 0.5474 |
 | + soft matching of partial P2 teams, forecast, P2 lead | `cat_v10` | 71.88% | 0.5446 |
 | + raw team ratings | `cat_v11` | 72.04% | 0.5421 |
-| F1: blend of spline LR, XGBoost, LightGBM, CatBoost | `blend_v11` | 72.08% (nested) | 0.5409 |
-
-Pipeline B, with the columns left by the revalidation:
-
-| Step | Feature set | Accuracy | Log-loss |
-|---|---|---|---|
-| HP difference alone, LR | `hp30` | 65.25% | 0.6167 |
-| LR, 11 columns | `compact` | 68.10% | 0.5878 |
+| **F1**: blend of four models | `blend_v11` | 72.08% (nested) | 0.5409 |
+| B: LR, 11 columns | `compact` | 68.10% | 0.5878 |
 | + team encodings, simulation | `compact_plus` | 69.02% | 0.5781 |
 | + knockout repair, re-selection | `compact_v4` | 71.50% | 0.5486 |
 | + team pool, re-selection | `compact_v5` | 71.98% | 0.5425 |
-| F2: boosters from the LR logit | `compact_v5` | 72.04% | 0.5395 |
+| **F2**: boosters from the LR logit | `ensemble_from_lr` | 72.04% | 0.5395 |
+| **F3**: logit blend of F1 and F2 | `blend_v11` in `compact/` | 72.32% (nested) | 0.5343 |
 
-## What did not help
-
-- time-share and count variants of the bags;
-- the expected composition of P2's unrevealed team;
-- pairwise interactions in the logistic regression;
-- separate stacked logits for each bag;
-- a spline-based stacked logit;
-- training-set augmentation with truncated battles;
-- monotone constraints and seed bagging;
-- re-tuning after the team effect;
-- separate P1 / P2 team terms;
-- critical hits and usage-based typical moves in the simulation;
-- a joint Bradley–Terry estimate of the team strengths;
-- a pairwise coverage score on top of the matchup matrix (best answers and worst matchups).
-
-`experiments/log.csv` records every cross-validation run of pipeline A with its full configuration, and
-`configs/pipelines.json` keeps the main pipelines and one representative of each experiment family.
+Seed bagging, monotone constraints, training on truncated battles, pairwise LR interactions, separate stacks of the
+bags, Bradley–Terry team strengths, critical hits in the simulation and re-tuning after the team effect gave no clear
+gain. `experiments/log.csv` records every CV run of pipeline A.
 
 ## Regenerating the final submissions
 
