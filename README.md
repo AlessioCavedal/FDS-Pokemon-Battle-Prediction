@@ -115,23 +115,3 @@ Rows with + add to the row above.
 Seed bagging, monotone constraints, training on truncated battles, pairwise LR interactions, separate stacks of the
 bags, Bradley–Terry team strengths, critical hits in the simulation and re-tuning after the team effect gave no clear
 gain. `experiments/log.csv` records every CV run of pipeline A.
-
-## Regenerating the final submissions
-
-The Kaggle notebook clones this repository and regenerates the three selected submissions:
-
-```bash
-pip install -r requirements.txt
-python -m src.cli features                      # build and cache the features (about 6 minutes)
-python -m src.cli submit --blend blend_v11      # F1
-
-cd compact
-python main.py train --features compact_v5 --models ensemble_from_lr --out runs     # F2
-python main.py predict --run runs/compact_v5__ensemble_from_lr --out ../submissions/compact.csv
-python main.py train --features compact_v5_v11 --models blend_v11 --params blend_params.json --out runs   # F3
-python main.py predict --run runs/compact_v5_v11__blend_v11-tuned --out ../submissions/compact_blend.csv
-```
-
-- The data folder is found automatically: the local folder `fds-pokemon-battles-prediction-2026/` or the Kaggle
-  input directory. It can be set with `FDS_DATA_DIR`.
-- `FDS_N_JOBS` sets the number of threads (default 4).
