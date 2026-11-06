@@ -1,9 +1,11 @@
 # Pokémon Battle Prediction – FDS Kaggle Challenge 2026
 
-Predicting the winner of Gen 2 OU Pokémon battles from Player 1's full team, Player 2's lead and the first
-30 turns of the battle, with classical machine learning only.
+Winning solution of the Sapienza University FDS Kaggle Challenge 2026: **1st of 52 teams** (about 200 students) on
+the private leaderboard.
 
-With the three final submissions below, the best of which is F1, we ranked first on the private leaderboard.
+We predict the winner of Gen 2 OU Pokémon battles from Player 1's full team, Player 2's lead and the first 30 turns
+of the battle, with classical machine learning only. The one-page [paper](Report.pdf) summarises the method, the
+experiments and the results.
 
 ## Final submissions
 
@@ -13,8 +15,8 @@ With the three final submissions below, the best of which is F1, we ranked first
 | F2 | Compact model of pipeline B (`compact_v5`, `ensemble_from_lr`) | 72.04% | 0.5395 | 71.00% | 70.09% |
 | F3 | Logit blend of F1 and F2, with weight 0.55 on F2 | 72.32% (nested) | 0.5343 | 71.33% | 70.40% |
 
-They were chosen on CV and diversity, since only the best selected score counts: F3 has the best CV of the three
-and the two pipelines disagree on 12.2% of the out-of-fold predictions.
+F1 gave the winning score. The three were chosen on CV and diversity, since only the best selected score counts: F3
+has the best CV of the three and the two pipelines disagree on 12.2% of the out-of-fold predictions.
 
 ## Two pipelines
 
