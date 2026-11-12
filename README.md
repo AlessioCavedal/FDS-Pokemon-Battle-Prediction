@@ -36,18 +36,18 @@ Spikes, screens, weather and most of Player 2's (P2) faints.
 Both pipelines compare Player 1 (P1) and P2 through the same ideas. Pipeline A turns them into groups of columns,
 named by prefix in `src/features/build.py`; pipeline B into single columns, listed in `compact/feature_catalog.py`.
 
-| # | Idea | What it captures | Pipeline A | Pipeline B |
-|---|---|---|---|---|
-| 1 | Hidden knockouts | P2 faints missing from the records | `f_`, `src/faint.py` | `p2_fainted`, `p2_hidden_ko_unsure` |
-| 2 | Material | HP, status and bulk (HP × defence) left to each side | `f_`, `x_`, `c_` | `smat_hp`, `material_healthy`, `phpw_spd` |
-| 3 | Field | boosts, Spikes, Substitute | `a_`, `c_`, `w_` | `bst_sum`, `spikes_on_field`, `eff_substitute` |
-| 4 | Actions | move classes, effectiveness, damage dealt, healing | `e_` | `b_stat_diff` |
-| 5 | Team make-up | stats, items, types and key roles (Snorlax, sleepers, spinners, phazers) | `s_`, `w_`, bags | `snorlax_diff` |
-| 6 | Duels | Gen 2 damage between the actives and a matchup matrix | `a_`, `m_` | none |
-| 7 | Simulation | one-on-one duels played to the end, as the state alone ignores who beats whom | `d_`, `z_` | `sim_seen_left` |
-| 8 | Momentum | earlier snapshots and a forecast of the next turns | `t_`, `q_` | `hpw_spd_t20` |
-| 9 | Switching | who is under pressure, from voluntary-switch rates per pair of actives | `v_` | `p_switch_diff`, `switch_excess_all` |
-| 10 | Team identity | reused teams as a proxy for the players, and partly revealed P2 teams completed from the known ones | `k_`, team effect | `tr_p1`, `tr_p2`, `te_pair_mean`, `hidden_bst` |
+| # | Idea | What it captures |
+|---|---|---|
+| 1 | Hidden knockouts | P2 faints missing from the records |
+| 2 | Material | HP, status and bulk (HP × defence) left to each side |
+| 3 | Field | boosts, Spikes, Substitute |
+| 4 | Actions | move classes, effectiveness, damage dealt, healing |
+| 5 | Team make-up | stats, items, types and key roles (Snorlax, sleepers, spinners, phazers) |
+| 6 | Duels | Gen 2 damage between the actives and a matchup matrix |
+| 7 | Simulation | one-on-one duels played to the end, as the state alone ignores who beats whom |
+| 8 | Momentum | earlier snapshots and a forecast of the next turns |
+| 9 | Switching | who is under pressure, from voluntary-switch rates per pair of actives |
+| 10 | Team identity | reused teams as a proxy for the players, and partly revealed P2 teams completed from the known ones |
 
 **Hidden knockouts.** P2's faints are recorded almost only when simultaneous with P1's (0.5 per battle). P1's faints
 are always recorded, so a gradient-boosting detector trained on P1's transitions finds about one more per battle (AUC
